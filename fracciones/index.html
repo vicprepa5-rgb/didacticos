@@ -249,9 +249,15 @@
     return b === 0 ? Math.abs(a) : gcd(b, a % b);
   }
 
-  function getTwoDigitNum() {
-    return Math.floor(Math.random() * 21) + 10;
-  }
+  // Genera números de 1 solo dígito (del 2 al 9 para evitar divisiones o multiplicaciones por 1)
+function getOneDigitNum() {
+  return Math.floor(Math.random() * 8) + 2;
+}
+
+// Genera números de 2 dígitos (del 10 al 25)
+function getTwoDigitNum() {
+  return Math.floor(Math.random() * 16) + 10;
+}
 
   function showScreen(screenId) {
     document.querySelectorAll('.screen').forEach(s => s.classList.remove('active-screen'));
@@ -332,10 +338,24 @@
     ops.sort(() => Math.random() - 0.5);
 
     questions = ops.map(op => {
-      let n1 = getTwoDigitNum();
-      let d1 = getTwoDigitNum();
-      let n2 = getTwoDigitNum();
-      let d2 = getTwoDigitNum();
+      // Decidir al azar cuál fracción será la de 2 dígitos (50% de probabilidad)
+const firstIsTwoDigits = Math.random() < 0.5;
+
+let n1, d1, n2, d2;
+
+if (firstIsTwoDigits) {
+  // Fracción 1: 2 dígitos | Fracción 2: 1 dígito
+  n1 = getTwoDigitNum();
+  d1 = getTwoDigitNum();
+  n2 = getOneDigitNum();
+  d2 = getOneDigitNum();
+} else {
+  // Fracción 1: 1 dígito | Fracción 2: 2 dígitos
+  n1 = getOneDigitNum();
+  d1 = getOneDigitNum();
+  n2 = getTwoDigitNum();
+  d2 = getTwoDigitNum();
+}
 
       let resNum, resDen;
 
