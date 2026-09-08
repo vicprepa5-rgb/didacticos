@@ -1,1 +1,566 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pizzeria de Fracciones 🍕 - UAEMéx</title>
+  <style>
+    :root {
+      --primary: #d9381e;
+      --secondary: #ffb703;
+      --bg: #fff8f0;
+      --card: #ffffff;
+      --text: #2b2d42;
+    }
 
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      margin: 0;
+      padding: 10px;
+      box-sizing: border-box;
+    }
+
+    .game-container {
+      background: var(--card);
+      border-radius: 20px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+      padding: 25px;
+      max-width: 650px;
+      width: 100%;
+      text-align: center;
+      border: 4px solid var(--secondary);
+    }
+
+    h1 {
+      color: var(--primary);
+      margin: 0 0 10px 0;
+      font-size: 1.8rem;
+    }
+
+    .stats {
+      display: flex;
+      justify-content: space-around;
+      font-size: 1.1rem;
+      font-weight: bold;
+      margin-bottom: 12px;
+      background: #ffe6a7;
+      padding: 10px;
+      border-radius: 10px;
+    }
+
+    .timer-alert {
+      color: var(--primary);
+      animation: blink 1s infinite;
+    }
+
+    @keyframes blink {
+      50% { opacity: 0.5; }
+    }
+
+    .form-group {
+      margin: 15px 0;
+      text-align: left;
+    }
+
+    .form-group label {
+      display: block;
+      font-weight: bold;
+      margin-bottom: 5px;
+    }
+
+    .form-group input {
+      width: 100%;
+      padding: 12px;
+      border: 2px solid #ccc;
+      border-radius: 8px;
+      font-size: 1rem;
+      box-sizing: border-box;
+      outline: none;
+    }
+
+    .form-group input:focus {
+      border-color: var(--primary);
+    }
+
+    .error-msg {
+      color: var(--primary);
+      font-size: 0.85rem;
+      font-weight: bold;
+      margin-top: 5px;
+      display: none;
+    }
+
+    .problem-box {
+      background: #f8f9fa;
+      border: 2px dashed var(--primary);
+      border-radius: 10px;
+      padding: 12px;
+      margin-bottom: 12px;
+      font-size: 1.6rem;
+      font-weight: bold;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .fraction {
+      display: inline-flex;
+      flex-direction: column;
+      vertical-align: middle;
+      text-align: center;
+    }
+
+    .fraction .top {
+      border-bottom: 2px solid var(--text);
+      padding: 0 4px;
+    }
+
+    canvas {
+      background: #eef2f5;
+      border: 2px solid var(--text);
+      border-radius: 10px;
+      display: block;
+      margin: 0 auto;
+      touch-action: none;
+    }
+
+    .screen {
+      display: none;
+    }
+
+    .active-screen {
+      display: block;
+    }
+
+    .final-score {
+      font-size: 2.5rem;
+      color: var(--primary);
+      margin: 15px 0;
+      font-weight: bold;
+    }
+
+    button {
+      background-color: var(--primary);
+      color: white;
+      border: none;
+      padding: 12px 25px;
+      font-size: 1.1rem;
+      font-weight: bold;
+      border-radius: 10px;
+      cursor: pointer;
+      margin-top: 15px;
+      transition: background-color 0.2s;
+    }
+
+    button:hover {
+      background-color: #b71c1c;
+    }
+  </style>
+</head>
+<body>
+
+<div class="game-container">
+  <h1>🍕 Pizzero de Fracciones 🍕</h1>
+
+  <!-- Pantalla de Inicio / Registro -->
+  <div id="start-screen" class="screen active-screen">
+    <p>Ingresa tu correo institucional UAEMéx para comenzar el desafío (10 ejercicios, 1:30 min por pregunta).</p>
+    
+    <div class="form-group">
+      <label for="student-email">Correo Institucional (@uaemex.mx):</label>
+      <input type="email" id="student-email" placeholder="ejemplo@uaemex.mx" required>
+      <div id="email-error" class="error-msg">⚠️ Debes usar un correo válido con terminación @uaemex.mx</div>
+    </div>
+
+    <div class="form-group">
+      <label for="student-name">Nombre completo:</label>
+      <input type="text" id="student-name" placeholder="Ej. Juan Pérez" required>
+    </div>
+
+    <div class="form-group">
+      <label for="student-group">Grupo / Grado:</label>
+      <input type="text" id="student-group" placeholder="Ej. 206" required>
+    </div>
+
+    <button onclick="validateAndStart()">Comenzar Juego 🚀</button>
+  </div>
+
+  <!-- Pantalla de Juego -->
+  <div id="game-screen" class="screen">
+    <div class="stats">
+      <div>Ejercicio: <span id="current-q">1</span> / 10</div>
+      <div>Tiempo: ⏳ <span id="timer-text">01:30</span></div>
+    </div>
+
+    <div class="problem-box" id="problem-display"></div>
+
+    <canvas id="gameCanvas" width="550" height="350"></canvas>
+    <p style="font-size: 0.85rem; color: #666; margin-top: 8px;">Mueve la caja con las <strong>flechas ⬅️ ➡️</strong> o deslizando tu <strong>mouse / pantalla</strong>.</p>
+  </div>
+
+  <!-- Pantalla Final -->
+  <div id="final-screen" class="screen">
+    <h2>🎉 ¡Entrega Finalizada!</h2>
+    <p>Tuviste un total de aciertos de:</p>
+    <div class="final-score" id="final-score-text">0 / 10</div>
+    <p id="send-status" style="font-weight: bold; color: var(--primary);">Enviando resultados a la hoja de cálculo...</p>
+
+    <button onclick="restartGame()">Volver a Jugar 🔄</button>
+  </div>
+</div>
+
+<script>
+  const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyKHwaBATnCzu_0lY9HfGN2CQMJECWans9QjhriwHx6-GdQ0i8sL34YE6DXN8F8Qk7s/exec";
+
+  const canvas = document.getElementById('gameCanvas');
+  const ctx = canvas.getContext('2d');
+
+  let studentEmail = "";
+  let studentName = "";
+  let studentGroup = "";
+
+  let questions = [];
+  let currentIndex = 0;
+  let score = 0;
+  let animationId = null;
+
+  let timeLeft = 90;
+  let timerInterval = null;
+
+  const player = {
+    x: canvas.width / 2 - 35,
+    y: canvas.height - 45,
+    width: 70,
+    height: 35,
+    speed: 7,
+    dx: 0
+  };
+
+  let fallingItems = [];
+
+  function gcd(a, b) {
+    return b === 0 ? Math.abs(a) : gcd(b, a % b);
+  }
+
+  function getTwoDigitNum() {
+    return Math.floor(Math.random() * 21) + 10;
+  }
+
+  function showScreen(screenId) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active-screen'));
+    document.getElementById(screenId).classList.add('active-screen');
+  }
+
+  function validateAndStart() {
+    const emailInput = document.getElementById('student-email').value.trim().toLowerCase();
+    const nameInput = document.getElementById('student-name').value.trim();
+    const groupInput = document.getElementById('student-group').value.trim();
+    const emailError = document.getElementById('email-error');
+
+    if (!emailInput.endsWith('@uaemex.mx')) {
+      emailError.style.display = 'block';
+      return;
+    } else {
+      emailError.style.display = 'none';
+    }
+
+    if (!nameInput || !groupInput) {
+      alert("Por favor completa todos los campos antes de iniciar.");
+      return;
+    }
+
+    studentEmail = emailInput;
+    studentName = nameInput;
+    studentGroup = groupInput;
+    
+    showScreen('game-screen');
+    initQuestions();
+  }
+
+  function resetQuestionTimer() {
+    clearInterval(timerInterval);
+    timeLeft = 90;
+    updateTimerDisplay();
+
+    timerInterval = setInterval(() => {
+      timeLeft--;
+      updateTimerDisplay();
+
+      if (timeLeft <= 0) {
+        clearInterval(timerInterval);
+        handleTimeOutForCurrentQuestion();
+      }
+    }, 1000);
+  }
+
+  function updateTimerDisplay() {
+    const minutes = Math.floor(timeLeft / 60);
+    const seconds = timeLeft % 60;
+    const formattedMinutes = String(minutes).padStart(2, '0');
+    const formattedSeconds = String(seconds).padStart(2, '0');
+    
+    const timerElem = document.getElementById('timer-text');
+    timerElem.innerText = `${formattedMinutes}:${formattedSeconds}`;
+
+    if (timeLeft <= 20) {
+      timerElem.classList.add('timer-alert');
+    } else {
+      timerElem.classList.remove('timer-alert');
+    }
+  }
+
+  function handleTimeOutForCurrentQuestion() {
+    currentIndex++;
+    if (currentIndex < 10) {
+      startQuestion();
+    } else {
+      cancelAnimationFrame(animationId);
+      animationId = null;
+      showFinalResults();
+    }
+  }
+
+  function initQuestions() {
+    const ops = ['*', '*', '*', '/', '/', '/', '+', '+', '-', '-'];
+    ops.sort(() => Math.random() - 0.5);
+
+    questions = ops.map(op => {
+      let n1 = getTwoDigitNum();
+      let d1 = getTwoDigitNum();
+      let n2 = getTwoDigitNum();
+      let d2 = getTwoDigitNum();
+
+      let resNum, resDen;
+
+      if (op === '+') {
+        resNum = (n1 * d2) + (n2 * d1);
+        resDen = d1 * d2;
+      } else if (op === '-') {
+        if ((n1 / d1) < (n2 / d2)) {
+          [n1, n2] = [n2, n1];
+          [d1, d2] = [d2, d1];
+        }
+        resNum = (n1 * d2) - (n2 * d1);
+        resDen = d1 * d2;
+      } else if (op === '*') {
+        resNum = n1 * n2;
+        resDen = d1 * d2;
+      } else if (op === '/') {
+        resNum = n1 * d2;
+        resDen = d1 * n2;
+      }
+
+      const div = gcd(resNum, resDen);
+      const correctNum = resNum / div;
+      const correctDen = resDen / div;
+
+      const options = [{ num: correctNum, den: correctDen, isCorrect: true }];
+      while (options.length < 4) {
+        let fakeNum = correctNum + Math.floor(Math.random() * 8 - 4);
+        let fakeDen = correctDen + Math.floor(Math.random() * 8 - 4);
+        if (fakeNum > 0 && fakeDen > 0) {
+          const fDiv = gcd(fakeNum, fakeDen);
+          fakeNum /= fDiv;
+          fakeDen /= fDiv;
+          if (!options.some(o => o.num === fakeNum && o.den === fakeDen)) {
+            options.push({ num: fakeNum, den: fakeDen, isCorrect: false });
+          }
+        }
+      }
+
+      options.sort(() => Math.random() - 0.5);
+
+      return {
+        n1, d1, n2, d2, op,
+        correctNum, correctDen,
+        options
+      };
+    });
+
+    currentIndex = 0;
+    score = 0;
+    startQuestion();
+  }
+
+  function startQuestion() {
+    resetQuestionTimer();
+    document.getElementById('current-q').innerText = currentIndex + 1;
+    const q = questions[currentIndex];
+
+    let opSymbol = q.op === '*' ? '×' : (q.op === '/' ? '÷' : q.op);
+
+    document.getElementById('problem-display').innerHTML = `
+      <div class="fraction"><span class="top">${q.n1}</span><span>${q.d1}</span></div>
+      <span>${opSymbol}</span>
+      <div class="fraction"><span class="top">${q.n2}</span><span>${q.d2}</span></div>
+    `;
+
+    const spacing = canvas.width / 4;
+    fallingItems = q.options.map((opt, i) => ({
+      x: spacing * i + spacing / 2 - 30,
+      y: -50 - Math.random() * 40,
+      width: 60,
+      height: 50,
+      speed: 1.5 + Math.random() * 0.5,
+      num: opt.num,
+      den: opt.den,
+      isCorrect: opt.isCorrect
+    }));
+
+    player.x = canvas.width / 2 - player.width / 2;
+    if (!animationId) {
+      gameLoop();
+    }
+  }
+
+  function drawPlayer() {
+    ctx.fillStyle = '#d9381e';
+    ctx.fillRect(player.x, player.y + 10, player.width, player.height - 10);
+    ctx.fillStyle = '#ffb703';
+    ctx.fillRect(player.x - 4, player.y, player.width + 8, 10);
+    
+    ctx.fillStyle = '#ffffff';
+    ctx.font = 'bold 12px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('📦 CAJA', player.x + player.width / 2, player.y + 26);
+  }
+
+  function drawItems() {
+    fallingItems.forEach(item => {
+      ctx.fillStyle = '#ffb703';
+      ctx.beginPath();
+      ctx.arc(item.x + item.width/2, item.y + item.height/2, 24, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.strokeStyle = '#d9381e';
+      ctx.lineWidth = 3;
+      ctx.stroke();
+
+      ctx.fillStyle = '#2b2d42';
+      ctx.font = 'bold 12px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText(`${item.num}/${item.den}`, item.x + item.width / 2, item.y + item.height / 2 + 4);
+    });
+  }
+
+  function update() {
+    player.x += player.dx;
+    if (player.x < 0) player.x = 0;
+    if (player.x + player.width > canvas.width) player.x = canvas.width - player.width;
+
+    let caught = false;
+    fallingItems.forEach(item => {
+      item.y += item.speed;
+
+      if (
+        item.y + item.height >= player.y &&
+        item.x + item.width >= player.x &&
+        item.x <= player.x + player.width
+      ) {
+        caught = true;
+        if (item.isCorrect) score++;
+      }
+
+      if (item.y > canvas.height) {
+        item.y = -50;
+      }
+    });
+
+    if (caught) {
+      currentIndex++;
+      if (currentIndex < 10) {
+        startQuestion();
+      } else {
+        clearInterval(timerInterval);
+        cancelAnimationFrame(animationId);
+        animationId = null;
+        showFinalResults();
+      }
+    }
+  }
+
+  function gameLoop() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    drawPlayer();
+    drawItems();
+    update();
+
+    if (currentIndex < 10) {
+      animationId = requestAnimationFrame(gameLoop);
+    }
+  }
+
+  function sendResultsToGoogleSheets() {
+    const statusElem = document.getElementById('send-status');
+    
+    if (!GOOGLE_SCRIPT_URL || GOOGLE_SCRIPT_URL.includes("PEGA_AQUI")) {
+      statusElem.innerText = "⚠️ Configura tu URL de Google Apps Script para guardar resultados.";
+      statusElem.style.color = "#d9381e";
+      return;
+    }
+
+    const payload = {
+      correo: studentEmail,
+      nombre: studentName,
+      grupo: studentGroup,
+      puntaje: `${score}/10`
+    };
+
+    fetch(GOOGLE_SCRIPT_URL, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    })
+    .then(() => {
+      statusElem.innerText = "✅ ¡Tus respuestas han sido enviadas correctamente!";
+      statusElem.style.color = "#2a9d8f";
+    })
+    .catch(() => {
+      statusElem.innerText = "❌ Error de conexión al enviar respuestas.";
+      statusElem.style.color = "#e76f51";
+    });
+  }
+
+  function showFinalResults() {
+    clearInterval(timerInterval);
+    showScreen('final-screen');
+    document.getElementById('final-score-text').innerText = `${score} / 10`;
+
+    sendResultsToGoogleSheets();
+  }
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowLeft') player.dx = -player.speed;
+    if (e.key === 'ArrowRight') player.dx = player.speed;
+  });
+
+  document.addEventListener('keyup', (e) => {
+    if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') player.dx = 0;
+  });
+
+  canvas.addEventListener('mousemove', (e) => {
+    const rect = canvas.getBoundingClientRect();
+    const mouseX = e.clientX - rect.left;
+    player.x = mouseX - player.width / 2;
+  });
+
+  canvas.addEventListener('touchmove', (e) => {
+    const rect = canvas.getBoundingClientRect();
+    const touchX = e.touches[0].clientX - rect.left;
+    player.x = touchX - player.width / 2;
+  });
+
+  function restartGame() {
+    showScreen('start-screen');
+  }
+</script>
+
+</body>
+</html>
