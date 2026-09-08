@@ -21,6 +21,8 @@
       align-items: center;
       min-height: 100vh;
       margin: 0;
+      padding: 1rem;
+      box-sizing: border-box;
     }
     .game-card {
       background: var(--card-bg);
@@ -30,6 +32,12 @@
       width: 100%;
       max-width: 450px;
       text-align: center;
+    }
+    .screen {
+      display: none;
+    }
+    .active-screen {
+      display: block;
     }
     .stats {
       display: flex;
@@ -48,6 +56,31 @@
       font-size: 2.2rem;
       font-weight: bold;
       letter-spacing: 2px;
+    }
+    .form-group {
+      text-align: left;
+      margin-bottom: 1.2rem;
+    }
+    .form-group label {
+      display: block;
+      font-size: 0.9rem;
+      color: #b0bec5;
+      margin-bottom: 0.4rem;
+      font-weight: bold;
+    }
+    .form-group input {
+      width: 100%;
+      padding: 0.75rem;
+      border-radius: 8px;
+      border: 2px solid #455a64;
+      background: #121212;
+      color: #fff;
+      font-size: 1rem;
+      box-sizing: border-box;
+      outline: none;
+    }
+    .form-group input:focus {
+      border-color: var(--accent);
     }
     .input-group {
       display: flex;
@@ -69,9 +102,9 @@
     input[type="number"]:focus {
       border-color: var(--accent);
     }
-    button {
-      font-size: 1.2rem;
-      padding: 0.6rem 1.2rem;
+    button, .btn-secondary {
+      font-size: 1.1rem;
+      padding: 0.7rem 1.4rem;
       border-radius: 8px;
       border: none;
       background: var(--accent);
@@ -79,9 +112,17 @@
       font-weight: bold;
       cursor: pointer;
       transition: transform 0.1s, background 0.2s;
+      text-decoration: none;
+      display: inline-block;
+      margin: 0.4rem;
     }
-    button:hover {
+    button:hover, .btn-secondary:hover {
       transform: scale(1.03);
+    }
+    .btn-secondary {
+      background: transparent;
+      color: var(--text);
+      border: 2px solid var(--accent);
     }
     .feedback {
       min-height: 28px;
@@ -97,37 +138,91 @@
       font-size: 0.9rem;
       margin-top: 0.5rem;
     }
+    .error-msg {
+      color: var(--accent-error);
+      font-size: 0.85rem;
+      margin-top: 0.4rem;
+      display: none;
+    }
+    .final-score {
+      font-size: 3rem;
+      font-weight: bold;
+      color: var(--accent);
+      margin: 1rem 0;
+    }
   </style>
 </head>
 <body>
 
 <div class="game-card">
-  <div class="stats">
-    <span>Nivel: <span id="level">1</span></span>
-    <span>Puntos: <span id="score">0</span>⭐</span>
+  <!-- Pantalla 1: Formulario de Registro -->
+  <div id="start-screen" class="screen active-screen">
+    <h2>🚀 Misión Rescate</h2>
+    <p style="color: #b0bec5; font-size: 0.95rem;">Ingresa tus datos para comenzar el entrenamiento de operaciones secretas (15 operaciones).</p>
+
+    <div class="form-group">
+      <label for="student-name">Nombre Completo:</label>
+      <input type="text" id="student-name" placeholder="Ej. Juan Pérez González">
+      <div id="name-error" class="error-msg">⚠️ Por favor ingresa tu nombre completo.</div>
+    </div>
+
+    <div class="form-group">
+      <label for="student-email">Correo Electrónico:</label>
+      <input type="email" id="student-email" placeholder="ejemplo@correo.com">
+      <div id="email-error" class="error-msg">⚠️ Ingresa un correo electrónico válido.</div>
+    </div>
+
+    <button onclick="startGame()">Iniciar Misión 🚀</button>
+    <a href="../" class="btn-secondary">🏠 Menú Principal</a>
   </div>
 
-  <div class="problem-box">
-    <div id="instruction" style="font-size:0.9rem; color:#aaa; margin-bottom:0.5rem;">Descifra el código:</div>
-    <div class="problem-text" id="problem">...</div>
+  <!-- Pantalla 2: Juego activo -->
+  <div id="game-screen" class="screen">
+    <div class="stats">
+      <span>Nivel: <span id="level">1</span></span>
+      <span>Operación: <span id="op-count">1</span> / 15</span>
+      <span>Aciertos: <span id="score">0</span>⭐</span>
+    </div>
+
+    <div class="problem-box">
+      <div id="instruction" style="font-size:0.9rem; color:#aaa; margin-bottom:0.5rem;">Descifra el código:</div>
+      <div class="problem-text" id="problem">...</div>
+    </div>
+
+    <div class="input-group">
+      <input type="number" id="answer" placeholder="?" autofocus>
+      <button onclick="checkAnswer()">Enviar</button>
+    </div>
+
+    <button class="hint-btn" onclick="showHint()">💡 ¿Necesitas una pista?</button>
+    <div class="feedback" id="feedback"></div>
   </div>
 
-  <div class="input-group">
-    <input type="number" id="answer" placeholder="?" autofocus>
-    <button onclick="checkAnswer()">Enviar</button>
+  <!-- Pantalla 3: Resultados Finales -->
+  <div id="final-screen" class="screen">
+    <h2>🎉 ¡Misión Completada!</h2>
+    <p id="player-summary" style="color: #b0bec5; font-size: 1rem;"></p>
+    <p>Tu calificación final es:</p>
+    <div class="final-score" id="final-score">0 / 15</div>
+    
+    <div>
+      <button onclick="resetGame()">Nuevo Juego 🔄</button>
+      <a href="../" class="btn-secondary">🏠 Menú Principal</a>
+    </div>
   </div>
-
-  <button class="hint-btn" onclick="showHint()">💡 ¿Necesitas una pista?</button>
-  <div class="feedback" id="feedback"></div>
 </div>
 
 <script>
   let score = 0;
   let level = 1;
+  let currentStep = 0;
+  let studentName = "";
+  let studentEmail = "";
   let currentProblem = {};
 
+  // Lista exacta de 15 operaciones organizadas por dificultad
   const problems = [
-    // Nivel 1: Tablas directas y patrones de 10
+    // Nivel 1: Tablas directas y patrones
     { q: "6 × 7", a: 42, hint: "Piensa en 6 × 5 (30) y súmale dos veces 6.", lvl: 1 },
     { q: "8 × 9", a: 72, hint: "Usa la regla del 9: (8 × 10) - 8.", lvl: 1 },
     { q: "40 × 5", a: 200, hint: "Multiplica 4 × 5 y agrega el cero al final.", lvl: 1 },
@@ -139,27 +234,72 @@
     { q: "12 × 4", a: 48, hint: "Descompón 12: (10 × 4) + (2 × 4).", lvl: 2 },
     { q: "? ÷ 4 = 8", a: 32, hint: "Multiplica el divisor (4) por el resultado (8).", lvl: 2 },
     { q: "150 ÷ 3", a: 50, hint: "Divide 15 ÷ 3 y agrega el cero.", lvl: 2 },
+    { q: "63 ÷ 7", a: 9, hint: "¿Qué número multiplicado por 7 da 63?", lvl: 2 },
 
     // Nivel 3: Retos intermedios
     { q: "14 × 5", a: 70, hint: "La mitad de 14 es 7, luego multiplica por 10.", lvl: 3 },
     { q: "84 ÷ 4", a: 21, hint: "Divide la mitad de 84 (42) entre 2.", lvl: 3 },
-    { q: "9 × ? = 81", a: 9, hint: "¿Qué número multiplicado por sí mismo da 81?", lvl: 3 }
+    { q: "9 × ? = 81", a: 9, hint: "¿Qué número multiplicado por sí mismo da 81?", lvl: 3 },
+    { q: "16 × 3", a: 48, hint: "Multiplica (10 × 3) + (6 × 3).", lvl: 3 },
+    { q: "120 ÷ 6", a: 20, hint: "Divide 12 ÷ 6 y agrega un cero.", lvl: 3 }
   ];
+
+  function showScreen(id) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active-screen'));
+    document.getElementById(id).classList.add('active-screen');
+  }
+
+  function startGame() {
+    const nameInput = document.getElementById("student-name").value.trim();
+    const emailInput = document.getElementById("student-email").value.trim();
+
+    const nameError = document.getElementById("name-error");
+    const emailError = document.getElementById("email-error");
+
+    let isValid = true;
+
+    if (nameInput.length === 0) {
+      nameError.style.display = "block";
+      isValid = false;
+    } else {
+      nameError.style.display = "none";
+    }
+
+    if (emailInput.length === 0 || !emailInput.includes("@")) {
+      emailError.style.display = "block";
+      isValid = false;
+    } else {
+      emailError.style.display = "none";
+    }
+
+    if (!isValid) return;
+
+    studentName = nameInput;
+    studentEmail = emailInput;
+    score = 0;
+    currentStep = 0;
+
+    showScreen("game-screen");
+    loadProblem();
+  }
 
   function loadProblem() {
     document.getElementById("answer").value = "";
     document.getElementById("feedback").textContent = "";
-    
-    // Filtrar problemas según el nivel actual
-    let available = problems.filter(p => p.lvl === level);
-    if (available.length === 0) {
-      available = problems; // Reinicia o mezcla si se acaban
+
+    if (currentStep >= problems.length) {
+      finishGame();
+      return;
     }
-    
-    currentProblem = available[Math.floor(Math.random() * available.length)];
+
+    currentProblem = problems[currentStep];
+    level = currentProblem.lvl;
+
     document.getElementById("problem").textContent = currentProblem.q;
     document.getElementById("level").textContent = level;
+    document.getElementById("op-count").textContent = currentStep + 1;
     document.getElementById("score").textContent = score;
+    document.getElementById("answer").focus();
   }
 
   function checkAnswer() {
@@ -171,14 +311,14 @@
     if (userAnswer === currentProblem.a) {
       feedback.className = "feedback correct";
       feedback.textContent = "¡Correcto! Código descifrado. 🎉";
-      score += 10;
-      if (score >= 30 && level === 1) level = 2;
-      if (score >= 70 && level === 2) level = 3;
-      setTimeout(loadProblem, 1200);
+      score++;
     } else {
       feedback.className = "feedback incorrect";
-      feedback.textContent = "Código incorrecto. ¡Inténtalo de nuevo!";
+      feedback.textContent = `Código incorrecto. La respuesta era ${currentProblem.a}.`;
     }
+
+    currentStep++;
+    setTimeout(loadProblem, 1200);
   }
 
   function showHint() {
@@ -188,14 +328,21 @@
     feedback.textContent = currentProblem.hint;
   }
 
-  // Permitir responder presionando Enter
+  function finishGame() {
+    showScreen("final-screen");
+    document.getElementById("player-summary").textContent = `Agente: ${studentName} (${studentEmail})`;
+    document.getElementById("final-score").textContent = `${score} / 15`;
+  }
+
+  function resetGame() {
+    showScreen("start-screen");
+  }
+
   document.getElementById("answer").addEventListener("keyup", function(event) {
     if (event.key === "Enter") {
       checkAnswer();
     }
   });
-
-  loadProblem();
 </script>
 
 </body>
