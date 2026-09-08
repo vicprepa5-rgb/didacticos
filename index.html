@@ -1,415 +1,102 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Laboratorio Evaluativo: Tablas de Verdad</title>
-    <style>
-        :root {
-            --primary: #4f46e5;
-            --primary-hover: #4338ca;
-            --bg-color: #f8fafc;
-            --card-bg: #ffffff;
-            --text-main: #1e293b;
-            --success: #16a34a;
-            --error: #dc2626;
-            --warning: #d97706;
-        }
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-main);
-            margin: 0;
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            min-height: 100vh;
-        }
-        .container {
-            width: 100%;
-            max-width: 700px;
-            background: var(--card-bg);
-            padding: 30px;
-            border-radius: 16px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-        }
-        h1 { color: var(--primary); margin-bottom: 5px; font-size: 1.8rem; text-align: center; }
-        .subtitle { color: #64748b; font-size: 0.95rem; margin-bottom: 25px; text-align: center; }
-        
-        .setup-screen, .app-screen, .result-screen { display: none; }
-        .active-screen { display: block; }
-
-        .form-group { margin-bottom: 20px; }
-        .form-group label { font-weight: bold; display: block; margin-bottom: 8px; }
-        input[type="text"] {
-            width: 100%;
-            padding: 12px;
-            border: 1px solid #cbd5e1;
-            border-radius: 6px;
-            font-size: 1rem;
-            box-sizing: border-box;
-        }
-        .code-input { font-family: monospace; }
-
-        .builder-box {
-            background: #f1f5f9;
-            padding: 15px;
-            border-radius: 10px;
-            margin-bottom: 20px;
-        }
-        .symbol-btns {
-            display: flex;
-            gap: 5px;
-            margin-top: 10px;
-            flex-wrap: wrap;
-        }
-        .sym-btn {
-            background: #e2e8f0;
-            border: none;
-            padding: 6px 12px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-weight: bold;
-            font-size: 0.9rem;
-        }
-        .sym-btn:hover { background: #cbd5e1; }
-
-        .info-bar {
-            display: flex;
-            justify-content: space-between;
-            background: #eef2ff;
-            padding: 10px 15px;
-            border-radius: 8px;
-            margin-bottom: 15px;
-            font-weight: bold;
-            color: var(--primary);
-            font-size: 0.95rem;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-bottom: 20px;
-            margin-top: 15px;
-        }
-        th, td {
-            border: 1px solid #cbd5e1;
-            padding: 10px;
-            text-align: center;
-        }
-        th { background-color: #f1f5f9; font-weight: 600; }
-        
-        .interactive-cell {
-            background-color: #f8fafc;
-            font-weight: bold;
-            font-size: 1.1rem;
-            cursor: pointer;
-            user-select: none;
-            transition: background 0.2s;
-        }
-        .interactive-cell:hover { background-color: #e2e8f0; }
-        .cell-v { color: var(--success); }
-        .cell-f { color: var(--error); }
-
-        .btn {
-            background-color: var(--primary);
-            color: white;
-            border: none;
-            padding: 12px 24px;
-            font-size: 1rem;
-            font-weight: bold;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: background 0.2s;
-            width: 100%;
-        }
-        .btn:hover { background-color: var(--primary-hover); }
-
-        #feedback-container { margin-top: 15px; }
-        .feedback-item {
-            padding: 10px;
-            border-radius: 6px;
-            margin-bottom: 8px;
-            font-size: 0.9rem;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        .feedback-success { background: #dcfce7; color: #166534; border-left: 4px solid var(--success); }
-        .feedback-error { background: #fee2e2; color: #991b1b; border-left: 4px solid var(--error); }
-        .badge-attempts { background: var(--warning); color: white; padding: 3px 8px; border-radius: 12px; font-size: 0.85rem; }
-        .sync-status { font-size: 0.85rem; color: #64748b; text-align: center; margin-top: 10px; }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Portal de Juegos Matemáticos</title>
+  <style>
+    :root {
+      --bg: #121212;
+      --card-bg: #1e1e2e;
+      --accent: #00e676;
+      --text: #ffffff;
+      --subtext: #b0bec5;
+    }
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      margin: 0;
+      padding: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+    }
+    header {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+    h1 {
+      margin: 0 0 0.5rem 0;
+      color: var(--accent);
+      font-size: 1.8rem;
+    }
+    p {
+      color: var(--subtext);
+      margin: 0;
+      font-size: 0.95rem;
+    }
+    .grid {
+      display: flex;
+      flex-direction: column;
+      gap: 1.2rem;
+      width: 100%;
+      max-width: 480px;
+    }
+    .card {
+      background: var(--card-bg);
+      border-radius: 12px;
+      padding: 1.2rem;
+      border: 1px solid rgba(255,255,255,0.08);
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+    .card h2 {
+      margin: 0;
+      font-size: 1.2rem;
+    }
+    .card p {
+      font-size: 0.85rem;
+    }
+    .btn {
+      align-self: flex-start;
+      margin-top: 0.5rem;
+      padding: 0.5rem 1rem;
+      background: var(--accent);
+      color: #000;
+      font-weight: bold;
+      text-decoration: none;
+      border-radius: 6px;
+      font-size: 0.9rem;
+    }
+  </style>
 </head>
 <body>
 
-    <div class="container">
-        <h1>Laboratorio de Lógica</h1>
-        <p class="subtitle">Evaluación de Tablas de Verdad</p>
+  <header>
+    <h1>🎮 Zona de Juegos Matemáticos</h1>
+    <p>Selecciona una actividad para comenzar el entrenamiento</p>
+  </header>
 
-        <!-- PANTALLA 1: REGISTRO -->
-        <div id="setup-screen" class="setup-screen active-screen">
-            <div class="form-group">
-                <label for="student-name">Nombre Completo del Estudiante:</label>
-                <input type="text" id="student-name" placeholder="Ej. Juan Pérez García">
-            </div>
-            <div class="form-group">
-                <label for="expr-input">Proposición Compuesta a Evaluar:</label>
-                <input type="text" id="expr-input" class="code-input" value="(p v q) -> ~p" placeholder="Ej: (p ^ q) -> ~p">
-                <div class="symbol-btns">
-                    <button class="sym-btn" onclick="insertSymbol('p')">p</button>
-                    <button class="sym-btn" onclick="insertSymbol('q')">q</button>
-                    <button class="sym-btn" onclick="insertSymbol('~')">~</button>
-                    <button class="sym-btn" onclick="insertSymbol('^')">^</button>
-                    <button class="sym-btn" onclick="insertSymbol('v')">v</button>
-                    <button class="sym-btn" onclick="insertSymbol('->')">-&gt;</button>
-                    <button class="sym-btn" onclick="insertSymbol('<->')">&lt;-&gt;</button>
-                </div>
-            </div>
-            <button class="btn" onclick="startApp()">Comenzar a Jugar</button>
-        </div>
+  <main class="grid">
 
-        <!-- PANTALLA 2: JUEGO -->
-        <div id="app-screen" class="app-screen">
-            <div class="info-bar">
-                <span id="display-name">Alumno: </span>
-                <span id="attempts-badge" class="badge-attempts">Intentos restantes: 2</span>
-            </div>
-
-            <div class="builder-box" style="margin-bottom: 10px; text-align: center;">
-                <span style="font-size: 0.9rem; color: #64748b;">Expresión actual:</span>
-                <div id="display-expr" style="font-family: monospace; font-size: 1.2rem; font-weight: bold; color: var(--primary);"></div>
-            </div>
-
-            <div id="table-container"></div>
-
-                <button class="btn" id="check-btn" onclick="checkTable()">¿Estoy Bien?</button>
-            <div id="feedback-container"></div>
-        </div>
-
-        <!-- PANTALLA 3: RESULTADOS -->
-        <div id="result-screen" class="result-screen" style="text-align: center;">
-            <h2 id="res-title" style="font-size: 1.8rem; margin-bottom: 10px;">¡Actividad Finalizada!</h2>
-            <p id="res-student" style="font-size: 1.1rem; color: #64748b; margin-bottom: 5px;"></p>
-            <p style="font-size: 1rem; color: #64748b;">Calificación Obtenida:</p>
-            <div id="res-score" style="font-size: 3.5rem; font-weight: bold; color: var(--primary); margin: 15px 0;">10 / 10</div>
-            <div id="res-msg" style="margin-bottom: 15px; font-weight: bold;"></div>
-            
-            <div id="final-review-container" style="text-align: left; margin-top: 20px; max-height: 250px; overflow-y: auto; padding: 10px; background: #f8fafc; border-radius: 8px; border: 1px solid #cbd5e1;"></div>
-
-            <div id="sync-msg" class="sync-status" style="margin-top: 15px;">Guardando calificación en el sistema...</div>
-            <br>
-            <button class="btn" onclick="location.reload()">Realizar otro ejercicio</button>
-        </div>
-
+    <!-- Tarjeta Juego 1 -->
+    <div class="card">
+      <h2>🚀 Misión Rescate</h2>
+      <p>Practica multiplicaciones, divisiones y patrones numéricos para descifrar códigos secretas.</p>
+      <a href="./juego-mision-rescate/" class="btn">Jugar Ahora</a>
     </div>
 
-    <script>
-        // CONFIGURACIÓN: ASEGÚRATE DE MANTENER TU URL DE GOOGLE APPS SCRIPT AQUÍ
-        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxfGN00eSYVTwZh7pbZ4Uk1LQtjbnlsBCqpZoQ78bShrK4ev-VUKDdSdStGQuOm_Blezg/exec";
+    <!-- Tarjeta Juego 2 (Ejemplo futuro) -->
+    <div class="card">
+      <h2>🧩 Reto de Fracciones</h2>
+      <p>Próximamente: Representación visual y suma de fracciones.</p>
+      <a href="#" class="btn" style="opacity: 0.5; pointer-events: none;">Próximamente</a>
+    </div>
 
-        let studentName = "";
-        let currentExpr = "";
-        let attemptsLeft = 2;
-        let userAnswers = [false, false, false, false];
-        const inputs = [[true, true], [true, false], [false, true], [false, false]];
+  </main>
 
-        function insertSymbol(sym) {
-            let input = document.getElementById('expr-input');
-            let start = input.selectionStart;
-            let end = input.selectionEnd;
-            let val = input.value;
-            input.value = val.substring(0, start) + sym + val.substring(end);
-            input.focus();
-            input.selectionStart = input.selectionEnd = start + sym.length;
-        }
-
-        function startApp() {
-            studentName = document.getElementById('student-name').value.trim();
-            currentExpr = document.getElementById('expr-input').value.trim();
-
-            if (!studentName) {
-                alert("Por favor, ingresa tu nombre completo.");
-                return;
-            }
-
-            let testVal = evaluateExpression(currentExpr, true, true);
-            if (testVal === null) {
-                alert("La expresión lógica contiene un formato no reconocido.");
-                return;
-            }
-
-            document.getElementById('display-name').innerText = `Alumno: ${studentName}`;
-            document.getElementById('display-expr').innerText = currentExpr;
-            attemptsLeft = 2;
-            document.getElementById('attempts-badge').innerText = `Intentos restantes: ${attemptsLeft}`;
-            userAnswers = [false, false, false, false];
-            
-            buildTableHTML();
-
-            document.getElementById('setup-screen').classList.remove('active-screen');
-            document.getElementById('app-screen').classList.add('active-screen');
-        }
-
-        function buildTableHTML() {
-            let container = document.getElementById('table-container');
-            let html = `<table><thead><tr><th>p</th><th>q</th><th>${currentExpr}</th></tr></thead><tbody>`;
-            inputs.forEach((inp, idx) => {
-                let pVal = inp[0] ? 'V' : 'F';
-                let qVal = inp[1] ? 'V' : 'F';
-                html += `<tr><td>${pVal}</td><td>${qVal}</td><td class="interactive-cell cell-f" id="cell-${idx}" onclick="toggleCell(${idx})">F</td></tr>`;
-            });
-            html += `</tbody></table>`;
-            container.innerHTML = html;
-        }
-
-        function toggleCell(idx) {
-            userAnswers[idx] = !userAnswers[idx];
-            let cell = document.getElementById(`cell-${idx}`);
-            if (userAnswers[idx]) {
-                cell.innerText = "V";
-                cell.className = "interactive-cell cell-v";
-            } else {
-                cell.innerText = "F";
-                cell.className = "interactive-cell cell-f";
-            }
-        }
-
-        function evaluateExpression(expr, p, q) {
-            try {
-                let evaluator = new Function('p', 'q', `
-                    let _p = !!p;
-                    let _q = !!q;
-                    return Boolean(${exprToJS(expr, '_p', '_q')});
-                `);
-                return evaluator(p, q);
-            } catch (e) {
-                return null;
-            }
-        }
-
-        function exprToJS(expr, pVar, qVar) {
-            let js = expr.trim();
-            js = js.replace(/<->/g, '===');
-            js = js.replace(/~/g, '!');
-            js = js.replace(/\^/g, '&&');
-            js = js.replace(/v/g, '||');
-            js = js.replace(/\bp\b/g, pVar);
-            js = js.replace(/\bq\b/g, qVar);
-
-            if (expr.includes('->')) {
-                let parts = expr.split('->');
-                if (parts.length === 2) {
-                    let left = exprToJS(parts[0], pVar, qVar);
-                    let right = exprToJS(parts[1], pVar, qVar);
-                    return `(!(${left}) || (${right}))`;
-                }
-            }
-            return js;
-        }
-
-        function checkTable() {
-            let feedback = document.getElementById('feedback-container');
-            feedback.innerHTML = "";
-            let errorCount = 0;
-
-            inputs.forEach((inp, idx) => {
-                let expectedBool = evaluateExpression(currentExpr, inp[0], inp[1]);
-                let userBool = userAnswers[idx];
-                if (userBool !== expectedBool) {
-                    errorCount++;
-                }
-            });
-
-            if (errorCount === 0) {
-                finishGame(true);
-            } else {
-                attemptsLeft--;
-                document.getElementById('attempts-badge').innerText = `Intentos restantes: ${attemptsLeft}`;
-                
-                if (attemptsLeft <= 0) {
-                    finishGame(false);
-                } else {
-                    let warn = document.createElement('div');
-                    warn.className = "feedback-item";
-                    warn.style.background = "#fef3c7";
-                    warn.style.color = "#92400e";
-                    warn.style.borderLeft = "4px solid var(--warning)";
-                    warn.innerHTML = `⚠️ Tienes <b>${errorCount} error(es)</b> en tu tabla. Analiza tus respuestas, te queda <b>1 intento más</b>.`;
-                    feedback.prepend(warn);
-                }
-            }
-        }
-
-        function finishGame(success) {
-            document.getElementById('app-screen').classList.remove('active-screen');
-            document.getElementById('result-screen').classList.add('active-screen');
-
-            document.getElementById('res-student').innerText = `Estudiante: ${studentName}`;
-            let scoreEl = document.getElementById('res-score');
-            let msgEl = document.getElementById('res-msg');
-            let reviewContainer = document.getElementById('final-review-container');
-
-            let finalScore = success ? "10 / 10" : "5 / 10";
-            let statusText = success ? "Aprobado (Correcto)" : "No superado (Agotó intentos)";
-
-            scoreEl.innerText = finalScore;
-            if (success) {
-                scoreEl.style.color = "var(--success)";
-                msgEl.innerText = "¡Excelente desempeño! Resolviste la tabla correctamente.";
-            } else {
-                scoreEl.style.color = "var(--error)";
-                msgEl.innerText = "Se agotaron tus intentos. Aquí tienes el desglose de corrección:";
-            }
-
-            // Generar desglose detallado para la pantalla final
-            let reviewHTML = "<h4 style='margin:0 0 10px 0;'>Desglose detallado:</h4>";
-            inputs.forEach((inp, idx) => {
-                let expectedBool = evaluateExpression(currentExpr, inp[0], inp[1]);
-                let userBool = userAnswers[idx];
-                let rowNum = idx + 1;
-                let pText = inp[0] ? 'V' : 'F';
-                let qText = inp[1] ? 'V' : 'F';
-                let expectedText = expectedBool ? 'V' : 'F';
-                let userText = userBool ? 'V' : 'F';
-
-                if (userBool === expectedBool) {
-                    reviewHTML += `<div style="color: #166534; font-size: 0.85rem; margin-bottom: 4px;">✅ Fila ${rowNum} (p=${pText}, q=${qText}): Tu respuesta (${userText}) fue correcta.</div>`;
-                } else {
-                    reviewHTML += `<div style="color: #991b1b; font-size: 0.85rem; margin-bottom: 4px;">❌ Fila ${rowNum} (p=${pText}, q=${qText}): Pusiste <b>${userText}</b> y lo correcto era <b>${expectedText}</b>.</div>`;
-                }
-            });
-            reviewContainer.innerHTML = reviewHTML;
-
-            // ENVIAR DATOS A GOOGLE SHEETS
-            sendDataToSheet(studentName, currentExpr, finalScore, statusText);
-        }
-
-        function sendDataToSheet(nombre, expresion, calificacion, estado) {
-            if (WEB_APP_URL.includes("PEGAR_AQUÍ")) {
-                document.getElementById('sync-msg').innerText = "⚠️ Nota: Falta configurar la URL de Google Sheets en el código.";
-                return;
-            }
-
-            let payload = {
-                nombre: nombre,
-                expresion: expresion,
-                calificacion: calificacion,
-                estado: estado
-            };
-
-            fetch(WEB_APP_URL, {
-                method: "POST",
-                mode: "no-cors",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(payload)
-            }).then(() => {
-                document.getElementById('sync-msg').innerText = "✅ ¡Calificación guardada y reportada con éxito en el sistema!";
-            }).catch(err => {
-                document.getElementById('sync-msg').innerText = "❌ Error al sincronizar el resultado.";
-            });
-        }
-    </script>
 </body>
 </html>
