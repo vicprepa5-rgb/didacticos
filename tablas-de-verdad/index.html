@@ -140,6 +140,26 @@
         .feedback-error { background: #fee2e2; color: #991b1b; border-left: 4px solid var(--error); }
         .badge-attempts { background: var(--warning); color: white; padding: 3px 8px; border-radius: 12px; font-size: 0.85rem; }
         .sync-status { font-size: 0.85rem; color: #64748b; text-align: center; margin-top: 10px; }
+.btn-secondary {
+  background-color: transparent;
+  color: var(--text);
+  border: 2px solid var(--primary);
+  padding: 10px 20px;
+  font-size: 0.9rem;
+  font-weight: bold;
+  border-radius: 8px;
+  cursor: pointer;
+  margin-top: 10px;
+  display: inline-block;
+  text-decoration: none;
+  transition: all 0.2s;
+}
+
+.btn-secondary:hover {
+  background-color: var(--primary);
+  color: white;
+}
+        
     </style>
 </head>
 <body>
@@ -201,6 +221,7 @@
             <div id="sync-msg" class="sync-status" style="margin-top: 15px;">Guardando calificación en el sistema...</div>
             <br>
             <button class="btn" onclick="location.reload()">Realizar otro ejercicio</button>
+            <button onclick="window.location.href='../'" class="btn-secondary">🏠 Menú Principal</button>
         </div>
 
     </div>
