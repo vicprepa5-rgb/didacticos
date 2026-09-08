@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Misión Rescate: Operaciones Secretas</title>
+  <style>
+    :root {
+      --bg-color: #1e1e2e;
+      --card-bg: #2b2b3d;
+      --accent: #00e676;
+      --accent-error: #ff5252;
+      --text: #ffffff;
+    }
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: var(--bg-color);
+      color: var(--text);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      margin: 0;
+    }
+    .game-card {
+      background: var(--card-bg);
+      padding: 2rem;
+      border-radius: 16px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+      width: 100%;
+      max-width: 450px;
+      text-align: center;
+    }
+    .stats {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 1.5rem;
+      font-weight: bold;
+      color: #b0bec5;
+    }
+    .problem-box {
+      background: rgba(255,255,255,0.05);
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+    .problem-text {
+      font-size: 2.2rem;
+      font-weight: bold;
+      letter-spacing: 2px;
+    }
+    .input-group {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      margin-bottom: 1rem;
+    }
+    input[type="number"] {
+      width: 120px;
+      font-size: 1.5rem;
+      padding: 0.5rem;
+      border-radius: 8px;
+      border: 2px solid #455a64;
+      background: #121212;
+      color: #fff;
+      text-align: center;
+      outline: none;
+    }
+    input[type="number"]:focus {
+      border-color: var(--accent);
+    }
+    button {
+      font-size: 1.2rem;
+      padding: 0.6rem 1.2rem;
+      border-radius: 8px;
+      border: none;
+      background: var(--accent);
+      color: #000;
+      font-weight: bold;
+      cursor: pointer;
+      transition: transform 0.1s, background 0.2s;
+    }
+    button:hover {
+      transform: scale(1.03);
+    }
+    .feedback {
+      min-height: 28px;
+      font-weight: bold;
+      margin-top: 1rem;
+    }
+    .feedback.correct { color: var(--accent); }
+    .feedback.incorrect { color: var(--accent-error); }
+    .hint-btn {
+      background: transparent;
+      color: #90caf9;
+      border: 1px dashed #90caf9;
+      font-size: 0.9rem;
+      margin-top: 0.5rem;
+    }
+  </style>
+</head>
+<body>
+
+<div class="game-card">
+  <div class="stats">
+    <span>Nivel: <span id="level">1</span></span>
+    <span>Puntos: <span id="score">0</span>⭐</span>
+  </div>
+
+  <div class="problem-box">
+    <div id="instruction" style="font-size:0.9rem; color:#aaa; margin-bottom:0.5rem;">Descifra el código:</div>
+    <div class="problem-text" id="problem">...</div>
+  </div>
+
+  <div class="input-group">
+    <input type="number" id="answer" placeholder="?" autofocus>
+    <button onclick="checkAnswer()">Enviar</button>
+  </div>
+
+  <button class="hint-btn" onclick="showHint()">💡 ¿Necesitas una pista?</button>
+  <div class="feedback" id="feedback"></div>
+</div>
+
+<script>
+  let score = 0;
+  let level = 1;
+  let currentProblem = {};
+
+  const problems = [
+    // Nivel 1: Tablas directas y patrones de 10
+    { q: "6 × 7", a: 42, hint: "Piensa en 6 × 5 (30) y súmale dos veces 6.", lvl: 1 },
+    { q: "8 × 9", a: 72, hint: "Usa la regla del 9: (8 × 10) - 8.", lvl: 1 },
+    { q: "40 × 5", a: 200, hint: "Multiplica 4 × 5 y agrega el cero al final.", lvl: 1 },
+    { q: "36 ÷ 6", a: 6, hint: "¿Qué número multiplicado por 6 da 36?", lvl: 1 },
+    { q: "45 ÷ 5", a: 9, hint: "Cuenta de 5 en 5 hasta llegar a 45.", lvl: 1 },
+
+    // Nivel 2: Faltantes y descomposición
+    { q: "7 × ? = 56", a: 8, hint: "Recuerda la tabla del 7 o divide 56 entre 7.", lvl: 2 },
+    { q: "12 × 4", a: 48, hint: "Descompón 12: (10 × 4) + (2 × 4).", lvl: 2 },
+    { q: "? ÷ 4 = 8", a: 32, hint: "Multiplica el divisor (4) por el resultado (8).", lvl: 2 },
+    { q: "150 ÷ 3", a: 50, hint: "Divide 15 ÷ 3 y agrega el cero.", lvl: 2 },
+
+    // Nivel 3: Retos intermedios
+    { q: "14 × 5", a: 70, hint: "La mitad de 14 es 7, luego multiplica por 10.", lvl: 3 },
+    { q: "84 ÷ 4", a: 21, hint: "Divide la mitad de 84 (42) entre 2.", lvl: 3 },
+    { q: "9 × ? = 81", a: 9, hint: "¿Qué número multiplicado por sí mismo da 81?", lvl: 3 }
+  ];
+
+  function loadProblem() {
+    document.getElementById("answer").value = "";
+    document.getElementById("feedback").textContent = "";
+    
+    // Filtrar problemas según el nivel actual
+    let available = problems.filter(p => p.lvl === level);
+    if (available.length === 0) {
+      available = problems; // Reinicia o mezcla si se acaban
+    }
+    
+    currentProblem = available[Math.floor(Math.random() * available.length)];
+    document.getElementById("problem").textContent = currentProblem.q;
+    document.getElementById("level").textContent = level;
+    document.getElementById("score").textContent = score;
+  }
+
+  function checkAnswer() {
+    const userAnswer = parseInt(document.getElementById("answer").value);
+    const feedback = document.getElementById("feedback");
+
+    if (isNaN(userAnswer)) return;
+
+    if (userAnswer === currentProblem.a) {
+      feedback.className = "feedback correct";
+      feedback.textContent = "¡Correcto! Código descifrado. 🎉";
+      score += 10;
+      if (score >= 30 && level === 1) level = 2;
+      if (score >= 70 && level === 2) level = 3;
+      setTimeout(loadProblem, 1200);
+    } else {
+      feedback.className = "feedback incorrect";
+      feedback.textContent = "Código incorrecto. ¡Inténtalo de nuevo!";
+    }
+  }
+
+  function showHint() {
+    const feedback = document.getElementById("feedback");
+    feedback.className = "feedback";
+    feedback.style.color = "#90caf9";
+    feedback.textContent = currentProblem.hint;
+  }
+
+  // Permitir responder presionando Enter
+  document.getElementById("answer").addEventListener("keyup", function(event) {
+    if (event.key === "Enter") {
+      checkAnswer();
+    }
+  });
+
+  loadProblem();
+</script>
+
+</body>
+</html>
