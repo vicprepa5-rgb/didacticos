@@ -289,15 +289,7 @@ function getTwoDigitNum() {
     const emailInput = document.getElementById('student-email').value.trim().toLowerCase();
     const nameInput = document.getElementById('student-name').value.trim();
     const groupInput = document.getElementById('student-group').value.trim();
-    const emailError = document.getElementById('email-error');
-
-    if (!emailInput.endsWith('@uaemex.mx')) {
-      emailError.style.display = 'block';
-      return;
-    } else {
-      emailError.style.display = 'none';
-    }
-
+    
     if (!nameInput || !groupInput) {
       alert("Por favor completa todos los campos antes de iniciar.");
       return;
