@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Arcade Algebraico: Leyes de Exponentes y Radicales</title>
+    
+    <!-- KaTeX CSS para renderizar matemáticas -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.body);"></script>
+
+    <style>
+        :root {
+            --bg-arcade: #0f172a;
+            --card-arcade: #1e293b;
+            --primary: #38bdf8;
+            --accent: #f43f5e;
+            --success: #22c55e;
+            --warning: #eab308;
+            --text-light: #f8fafc;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-arcade);
+            color: var(--text-light);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .container {
+            width: 100%;
+            max-width: 750px;
+            background: var(--card-arcade);
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+            border: 2px solid #334155;
+        }
+        h1 { color: var(--primary); margin-bottom: 5px; font-size: 2rem; text-align: center; text-transform: uppercase; letter-spacing: 2px;}
+        .subtitle { color: #94a3b8; font-size: 0.95rem; margin-bottom: 25px; text-align: center; }
+        
+        .setup-screen, .app-screen, .result-screen { display: none; }
+        .active-screen { display: block; }
+
+        .form-group { margin-bottom: 20px; }
+        .form-group label { font-weight: bold; display: block; margin-bottom: 8px; color: #cbd5e1; }
+        input[type="text"], select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #475569;
+            border-radius: 8px;
+            font-size: 1rem;
+            box-sizing: border-box;
+            background: #0f172a;
+            color: white;
+        }
+
+        .hud-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #0f172a;
+            padding: 12px 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            border: 1px solid #334155;
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+        .lives { color: var(--accent); font-size: 1.3rem; }
+        .score-counter { color: var(--success); }
+
+        .question-card {
+            background: #0f172a;
+            padding: 25px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            border: 2px solid #334155;
+        }
+        .question-title {
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+            line-height: 1.5;
+        }
+        .options-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+        .option-label {
+            background: #1e293b;
+            border: 2px solid #475569;
+            padding: 12px 18px;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            transition: all 0.2s;
+            font-size: 1.05rem;
+        }
+        .option-label:hover { background: #334155; border-color: var(--primary); transform: translateY(-2px); }
+        .option-label input { accent-color: var(--primary); transform: scale(1.2); }
+
+        .btn {
+            background: linear-gradient(135deg, #0284c7, #0369a1);
+            color: white;
+            border: none;
+            padding: 14px 24px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: transform 0.1s, filter 0.2s;
+            width: 100%;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            box-shadow: 0 4px 12px rgba(2, 132, 199, 0.4);
+            margin-top: 10px;
+        }
+        .btn:hover { filter: brightness(1.1); }
+        .btn:active { transform: scale(0.98); }
+
+        .feedback-alert {
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            font-weight: bold;
+            background: rgba(234, 179, 8, 0.15);
+            color: #fde047;
+            border-left: 5px solid var(--warning);
+            text-align: center;
+        }
+        .sync-status { font-size: 0.85rem; color: #94a3b8; text-align: center; margin-top: 10px; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>🕹️ Arcade Algebraico</h1>
+        <p class="subtitle">Campaña Progresiva: Supera los 3 Mundos</p>
+
+        <!-- PANTALLA 1: REGISTRO -->
+        <div id="setup-screen" class="setup-screen active-screen">
+            <div class="form-group">
+                <label for="student-name">Nombre del Jugador (Estudiante):</label>
+                <input type="text" id="student-name" placeholder="Ej. Carlos Mendoza">
+            </div>
+            <div class="form-group">
+                <label for="quiz-level">Selecciona el Mundo Actual:</label>
+                <select id="quiz-level">
+                    <option value="1">Mundo 1: Leyes básicas (Multiplicación y División)</option>
+                    <option value="2" id="opt-level-2" disabled>Mundo 2: Potencia de potencia y Negativos (🔒 Bloqueado)</option>
+                    <option value="3" id="opt-level-3" disabled>Mundo 3: Radicales y Exponentes Fraccionarios (🔒 Bloqueado)</option>
+                </select>
+            </div>
+            <button class="btn" onclick="startApp()">¡Comenzar Misión!</button>
+        </div>
+
+        <!-- PANTALLA 2: JUEGO ARCADE -->
+        <div id="app-screen" class="app-screen">
+            <div class="hud-bar">
+                <span id="display-name">Jugador: </span>
+                <span class="score-counter">Aciertos: <span id="current-score">0</span> / 4</span>
+                <span class="lives" id="lives-display">❤️❤️❤️</span>
+            </div>
+
+            <div id="feedback-container"></div>
+            <div id="question-arena"></div>
+
+            <button class="btn" id="check-btn" onclick="checkAnswer()">Enviar Respuesta</button>
+        </div>
+
+        <!-- PANTALLA 3: RESULTADOS -->
+        <div id="result-screen" class="result-screen" style="text-align: center;">
+            <h2 id="res-game-title" style="font-size: 2rem; margin-bottom: 5px; color: var(--primary);">¡Resultado de Misión!</h2>
+            <p id="res-student" style="font-size: 1.1rem; color: #94a3b8; margin-bottom: 5px;"></p>
+            <div id="res-score" style="font-size: 3.5rem; font-weight: bold; color: var(--success); margin: 15px 0;">10 / 10</div>
+            <div id="res-msg" style="margin-bottom: 15px; font-weight: bold; font-size: 1.1rem;"></div>
+            
+            <div id="final-review-container" style="text-align: left; margin-top: 20px; max-height: 250px; overflow-y: auto; padding: 15px; background: #0f172a; border-radius: 8px; border: 1px solid #334155;"></div>
+
+            <div id="sync-msg" class="sync-status" style="margin-top: 15px;">Guardando puntuación en el sistema...</div>
+            <br>
+            <button class="btn" id="next-world-btn" style="display:none;" onclick="advanceToNextWorld()">Avanzar al Siguiente Mundo 🚀</button>
+            <button class="btn" style="background: #475569;" onclick="returnToMenu()">Menú Principal</button>
+        </div>
+
+    </div>
+
+    <script>
+        // CONFIGURACIÓN: TU MISMA URL DE GOOGLE APPS SCRIPT
+        const WEB_APP_URL = "PEGAR_AQUÍ_TU_URL_DE_GOOGLE_APPS_SCRIPT";
+
+        let studentName = "";
+        let currentLevel = 1;
+        let unlockedLevel = 1; // Control de niveles desbloqueados
+        let lives = 3;
+        let score = 0;
+        let currentQuestionIdx = 0;
+        let activeQuestions = [];
+        let userAnswersHistory = [];
+
+        // BANCO AMPLIADO DE PREGUNTAS POR MUNDO (Garantiza variedad aleatoria)
+        const masterQuestionBanks = {
+            1: [
+                { q: "Simplifica la multiplicación de potencias: $x^3 \\cdot x^4$", options: ["$x^7$", "$x^{12}$", "$2x^7$", "$x$"], correct: 0, exp: "Se suman los exponentes: 3 + 4 = 7." },
+                { q: "Resuelve la división algebraica: $\\frac{a^8}{a^3}$", options: ["$a^5$", "$a^{11}$", "$a^{24}$", "$1$"], correct: 0, exp: "Se restan los exponentes: 8 - 3 = 5." },
+                { q: "Simplifica la expresión: $(2x^2) \\cdot (3x^3)$", options: ["$5x^5$", "$6x^6$", "$6x^5$", "$5x^6$"], correct: 2, exp: "Multiplica coeficientes (2·3=6) y suma exponentes (2+3=5)." },
+                { q: "Halla el resultado de: $\\frac{x^5 \\cdot x^2}{x^4}$", options: ["$x^3$", "$x^7$", "$x^2$", "$x^{11}$"], correct: 0, exp: "Arriba da $x^7$, al dividir entre $x^4$ queda 7 - 4 = 3." },
+                { q: "Multiplica las variables: $x \\cdot x^5$", options: ["$x^5$", "$x^6$", "$2x^6$", "$x^4$"], correct: 1, exp: "Recuerda que $x = x^1$, por lo tanto 1 + 5 = 6." },
+                { q: "Simplifica la división: $\\frac{m^{10}}{m^2}$", options: ["$m^8$", "$m^5$", "$m^{12}$", "$m$"], correct: 0, exp: "Se restan los exponentes del numerador y denominador: 10 - 2 = 8." }
+            ],
+            2: [
+                { q: "Simplifica la potencia de una potencia: $(x^3)^4$", options: ["$x^{12}$", "$x^7$", "$7x$", "$34x$"], correct: 0, exp: "Los exponentes se multiplican: 3 · 4 = 12." },
+                { q: "¿A cuánto equivale cualquier expresión con exponente cero? Ejemplo: $(54xyz)^0$", options: ["$0$", "$1$", "$54xyz$", "Indeterminado"], correct: 1, exp: "Por definición algebraica, todo término elevado a la 0 es igual a 1." },
+                { q: "Aplica la regla de exponente negativo a: $x^{-3}$", options: ["$-x^3$", "$\\frac{1}{x^3}$", "$-\\frac{1}{x^3}$", "$3x$"], correct: 1, exp: "El exponente negativo baja la base al denominador convirtiéndola en positiva." },
+                { q: "Resuelve el producto con potencias negativas: $x^{-2} \\cdot x^5$", options: ["$x^{-10}$", "$x^3$", "$x^{-3}$", "$\\frac{1}{x^3}$"], correct: 1, exp: "Suma algebraica de exponentes: -2 + 5 = 3." },
+                { q: "Simplifica aplicando potencia de un producto: $(2x^2)^3$", options: ["$2x^6$", "$8x^6$", "$6x^5$", "$8x^5$"], correct: 1, exp: "Eleva el coeficiente al cubo ($2^3 = 8$) y multiplica exponentes (2·3=6)." },
+                { q: "Calcula el resultado de: $(a^{-2})^{-3}$", options: ["$a^6$", "$a^{-6}$", "$a^{-5}$", "$1/a^6$"], correct: 0, exp: "Potencia de potencia negativa: (-2) · (-3) = 6 positivo." }
+            ],
+            3: [
+                { q: "Convierte el radical a exponente fraccionario: $\\sqrt{x}$", options: ["$x^{1/2}$", "$x^2$", "$2x$", "$x^{-1/2}$"], correct: 0, exp: "La raíz cuadrada equivale a una potencia fraccionaria de 1/2." },
+                { q: "Simplifica la expresión radical: $\\sqrt{x^6}$", options: ["$x^3$", "$x^2$", "$x^6$", "$3x$"], correct: 0, exp: "Divide el exponente del radicando entre el índice de la raíz: 6 / 2 = 3." },
+                { q: "Halla el equivalente de la raíz cúbica: $\\sqrt[3]{8x^3}$", options: ["$2x$", "$8x$", "$4x$", "$x$"], correct: 0, exp: "Raíz cúbica de 8 es 2, y la raíz cúbica de $x^3$ es x." },
+                { q: "Resuelve el producto de radicales idénticos: $\\sqrt{x} \\cdot \\sqrt{x}$", options: ["$x$", "$x^2$", "$\\sqrt{x}$", "$2x$"], correct: 0, exp: "Equivale a $x^{1/2} \\cdot x^{1/2} = x^{1} = x$." },
+                { q: "Simplifica expresando con exponente fraccionario: $\\sqrt[4]{x^8}$", options: ["$x^2$", "$x^4$", "$x^{1/2}$", "$2x^2$"], correct: 0, exp: "Se divide el exponente entre el índice: 8 / 4 = 2." },
+                { q: "Convierte a forma radical: $x^{3/4}$", options: ["$\\sqrt[4]{x^3}$", "$\\sqrt[3]{x^4}$", "$x^3 / 4$", "$4\\sqrt{x^3}$"], correct: 0, exp: "El numerador (3) es la potencia y el denominador (4) es el índice de la raíz." }
+            ]
+        };
+
+        function shuffleArray(array) {
+            return [...array].sort(() => Math.random() - 0.5);
+        }
+
+        function updateLevelSelectUI() {
+            let select = document.getElementById('quiz-level');
+            let opt2 = document.getElementById('opt-level-2');
+            let opt3 = document.getElementById('opt-level-3');
+
+            if (unlockedLevel >= 2) {
+                opt2.disabled = false;
+                opt2.innerText = "Mundo 2: Potencia de potencia y Negativos";
+            }
+            if (unlockedLevel >= 3) {
+                opt3.disabled = false;
+                opt3.innerText = "Mundo 3: Radicales y Exponentes Fraccionarios";
+            }
+            select.value = currentLevel;
+        }
+
+        function startApp() {
+            studentName = document.getElementById('student-name').value.trim();
+            currentLevel = parseInt(document.getElementById('quiz-level').value);
+
+            if (!studentName) {
+                alert("Por favor, ingresa tu nombre de jugador.");
+                return;
+            }
+
+            // Seleccionar 4 preguntas aleatorias distintas del banco del mundo elegido
+            let pool = masterQuestionBanks[currentLevel];
+            activeQuestions = shuffleArray(pool).slice(0, 4);
+
+            lives = 3;
+            score = 0;
+            currentQuestionIdx = 0;
+            userAnswersHistory = [];
+
+            document.getElementById('display-name').innerText = `Jugador: ${studentName} (Mundo ${currentLevel})`;
+            document.getElementById('current-score').innerText = score;
+            updateLivesHUD();
+
+            document.getElementById('setup-screen').classList.remove('active-screen');
+            document.getElementById('result-screen').classList.remove('active-screen');
+            document.getElementById('app-screen').classList.add('active-screen');
+
+            loadQuestion();
+        }
+
+        function updateLivesHUD() {
+            let hearts = "";
+            for (let i = 0; i < lives; i++) hearts += "❤️";
+            document.getElementById('lives-display').innerText = hearts || "❌";
+        }
+
+        function loadQuestion() {
+            document.getElementById('feedback-container').innerHTML = "";
+            let arena = document.getElementById('question-arena');
+            let qData = activeQuestions[currentQuestionIdx];
+
+            let indexedOptions = qData.options.map((opt, idx) => ({ opt, idx }));
+            let shuffledOptions = shuffleArray(indexedOptions);
+
+            let html = `
+                <div class="question-card">
+                    <div class="question-title"><b>Reto ${currentQuestionIdx + 1}/4:</b> ${qData.q}</div>
+                    <div class="options-grid">
+            `;
+
+            shuffledOptions.forEach((item) => {
+                html += `
+                    <label class="option-label">
+                        <input type="radio" name="arcade-opt" value="${item.idx}">
+                        <span>${item.opt}</span>
+                    </label>
+                `;
+            });
+
+            html += `</div></div>`;
+            arena.innerHTML = html;
+
+            renderMathInElement(arena, {
+                delimiters: [
+                    {left: "$$", right: "$$", display: true},
+                    {left: "$", right: "$", display: false}
+                ]
+            });
+        }
+
+        function checkAnswer() {
+            let selected = document.querySelector('input[name="arcade-opt"]:checked');
+            let feedback = document.getElementById('feedback-container');
+
+            if (!selected) {
+                feedback.innerHTML = `<div class="feedback-alert">⚠️ ¡Elige una opción antes de continuar, aventurero!</div>`;
+                return;
+            }
+
+            let chosenIdx = parseInt(selected.value);
+            let qData = activeQuestions[currentQuestionIdx];
+            let isCorrect = (chosenIdx === qData.correct);
+
+            userAnswersHistory.push({
+                question: qData.q,
+                correct: isCorrect,
+                explanation: qData.exp,
+                userChoiceText: qData.options[chosenIdx],
+                correctText: qData.options[qData.correct]
+            });
+
+            if (isCorrect) {
+                score++;
+                document.getElementById('current-score').innerText = score;
+                currentQuestionIdx++;
+
+                if (currentQuestionIdx >= activeQuestions.length || lives <= 0) {
+                    finishGame(true);
+                } else {
+                    loadQuestion();
+                }
+            } else {
+                lives--;
+                updateLivesHUD();
+
+                if (lives <= 0) {
+                    finishGame(false);
+                } else {
+                    feedback.innerHTML = `<div class="feedback-alert">💥 ¡Respuesta incorrecta! Pierdes una vida. Te quedan ${lives} vida(s).</div>`;
+                }
+            }
+        }
+
+        function finishGame(success) {
+            document.getElementById('app-screen').classList.remove('active-screen');
+            document.getElementById('result-screen').classList.add('active-screen');
+
+            document.getElementById('res-student').innerText = `Jugador: ${studentName}`;
+            let scoreEl = document.getElementById('res-score');
+            let msgEl = document.getElementById('res-msg');
+            let reviewContainer = document.getElementById('final-review-container');
+            let nextBtn = document.getElementById('next-world-btn');
+
+            let finalGradeNum = Math.round((score / 4) * 10);
+            let isVictory = (lives > 0 && score === 4);
+            let statusText = isVictory ? `¡Mundo ${currentLevel} Superado!` : `Derrota en Mundo ${currentLevel}`;
+
+            scoreEl.innerText = `${finalGradeNum} / 10`;
+            
+            if (isVictory) {
+                scoreEl.style.color = "var(--success)";
+                msgEl.innerText = `🏆 ¡EXCELENTE! Has conquistado el Mundo ${currentLevel}.`;
+
+                // Desbloquear siguiente nivel en campaña
+                if (currentLevel < 3 && unlockedLevel <= currentLevel) {
+                    unlockedLevel = currentLevel + 1;
+                    nextBtn.style.display = "block";
+                } else {
+                    nextBtn.style.display = "none";
+                }
+            } else {
+                scoreEl.style.color = "var(--warning)";
+                msgEl.innerText = "⚡ ¡Misión no superada! Te quedaste sin vidas o aciertos. Revisa tu bitácora:";
+                nextBtn.style.display = "none";
+            }
+
+            updateLevelSelectUI();
+
+            let reviewHTML = "<h4 style='margin:0 0 10px 0; color: var(--primary);'>Bitácora de la Misión:</h4>";
+            userAnswersHistory.forEach((item, idx) => {
+                if (item.correct) {
+                    reviewHTML += `<div style="color: var(--success); font-size: 0.85rem; margin-bottom: 6px;">✅ <b>Reto ${idx + 1}:</b> ¡Superado! (${item.explanation})</div>`;
+                } else {
+                    reviewHTML += `<div style="color: var(--accent); font-size: 0.85rem; margin-bottom: 6px;">❌ <b>Reto ${idx + 1}:</b> Fallaste. Elegiste <i>${item.userChoiceText}</i> (Lo correcto era <b>${item.correctText}</b>). <i>${item.explanation}</i></div>`;
+                }
+            });
+            reviewContainer.innerHTML = reviewHTML;
+
+            renderMathInElement(reviewContainer, {
+                delimiters: [
+                    {left: "$$", right: "$$", display: true},
+                    {left: "$", right: "$", display: false}
+                ]
+            });
+
+            // ENVIAR CALIFICACIÓN A GOOGLE SHEETS
+            sendDataToSheet(studentName, `Arcade Exp/Rad (Mundo ${currentLevel})`, `${finalGradeNum} / 10`, statusText);
+        }
+
+        function advanceToNextWorld() {
+            if (currentLevel < 3) {
+                currentLevel++;
+                startApp();
+            }
+        }
+
+        function returnToMenu() {
+            document.getElementById('result-screen').classList.remove('active-screen');
+            document.getElementById('setup-screen').classList.add('active-screen');
+            updateLevelSelectUI();
+        }
+
+        function sendDataToSheet(nombre, expresion, calificacion, estado) {
+            if (WEB_APP_URL.includes("PEGAR_AQUÍ")) {
+                document.getElementById('sync-msg').innerText = "⚠️ Nota: Falta configurar la URL de Google Sheets.";
+                return;
+            }
+
+            let payload = { nombre, expresion, calificacion, estado };
+
+            fetch(WEB_APP_URL, {
+                method: "POST",
+                mode: "no-cors",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(payload)
+            }).then(() => {
+                document.getElementById('sync-msg').innerText = "✅ ¡Puntuación guardada exitosamente en el Drive!";
+            }).catch(() => {
+                document.getElementById('sync-msg').innerText = "❌ Error al sincronizar con Google Sheets.";
+            });
+        }
+    </script>
+</body>
+</html>
