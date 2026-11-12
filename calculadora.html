@@ -7,35 +7,40 @@
     <title>Calculadora de Parciales</title>
 
     <style>
+        * {
+            box-sizing: border-box;
+        }
+
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background-color: #fff;
             margin: 0;
-            padding: 75px 20px 20px;
+            padding: 100px 20px 20px;
             display: flex;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
-            box-sizing: border-box;
         }
 
-        /* Aviso institucional fijo */
+        /* MENSAJE INSTITUCIONAL SUPERIOR */
         .mensaje-superior {
             position: fixed;
             top: 0;
             left: 0;
+            right: 0;
             width: 100%;
             background-color: #000;
             color: #fff;
             text-align: center;
-            padding: 12px 15px;
+            padding: 14px 20px;
             font-size: 13px;
             font-weight: 600;
-            box-sizing: border-box;
-            z-index: 1000;
+            line-height: 1.5;
             border-bottom: 2px solid #444;
+            z-index: 9999;
         }
 
+        /* TARJETA DE LA CALCULADORA */
         .card {
             background: #3dd6f2;
             padding: 30px;
@@ -68,7 +73,6 @@
             border: 1px solid #ccc;
             border-radius: 6px;
             font-size: 16px;
-            box-sizing: border-box;
         }
 
         .result {
@@ -99,229 +103,257 @@
             border: 1px solid #f5c6cb;
         }
 
-        /* Adaptación para celulares */
+        /* ADAPTACIÓN PARA CELULARES */
         @media (max-width: 480px) {
-            .mensaje-superior {
-                font-size: 11px;
-                padding: 10px;
+            body {
+                padding: 95px 15px 20px;
             }
 
-            body {
-                padding-top: 85px;
+            .mensaje-superior {
+                font-size: 11px;
+                padding: 10px 12px;
             }
 
             .card {
                 padding: 20px;
             }
         }
+
     </style>
 </head>
 
 <body>
 
-<!-- Mensaje institucional -->
-<div class="mensaje-superior">
-    La presente calculadora solo es informativa para corroborar tus
-    calificaciones oficiales. Verifica tu portal de alumno de
-    Servicios Escolares.
-</div>
-
-<div class="card">
-
-    <h2>Calculadora de Parciales</h2>
-
-    <div class="form-group">
-        <label for="parcial1">
-            Calificación Primer Parcial (0-10):
-        </label>
-        <input type="number" id="parcial1"
-            min="0" max="10" step="0.1"
-            placeholder="Ej. 8.5" oninput="calcular()">
+    <!-- AVISO INSTITUCIONAL -->
+    <div class="mensaje-superior">
+        La presente calculadora solo es informativa para corroborar tus
+        calificaciones oficiales. Verifica tu portal de alumno de
+        Servicios Escolares.
     </div>
 
-    <div class="form-group">
-        <label for="parcial2">
-            Calificación Segundo Parcial (0-10):
-        </label>
-        <input type="number" id="parcial2"
-            min="0" max="10" step="0.1"
-            placeholder="Ej. 7.5" oninput="calcular()">
+    <!-- CALCULADORA -->
+    <div class="card">
+
+        <h2>Calculadora de Parciales</h2>
+
+        <div class="form-group">
+            <label for="parcial1">
+                Calificación Primer Parcial (0-10):
+            </label>
+
+            <input type="number"
+                id="parcial1"
+                min="0"
+                max="10"
+                step="0.1"
+                placeholder="Ej. 8.5"
+                oninput="calcular()">
+        </div>
+
+        <div class="form-group">
+            <label for="parcial2">
+                Calificación Segundo Parcial (0-10):
+            </label>
+
+            <input type="number"
+                id="parcial2"
+                min="0"
+                max="10"
+                step="0.1"
+                placeholder="Ej. 7.5"
+                oninput="calcular()">
+        </div>
+
+        <div class="form-group"
+            id="grupoOrdinario"
+            style="display: none;">
+
+            <label for="ordinarioInput">
+                Calificación Examen Ordinario (0-10):
+            </label>
+
+            <input type="number"
+                id="ordinarioInput"
+                min="0"
+                max="10"
+                step="0.1"
+                placeholder="Ej. 7.0"
+                oninput="calcular()">
+        </div>
+
+        <div id="resultadoBox"
+            class="result"
+            style="display: none;">
+
+            <span id="textoResultado"></span>
+
+        </div>
+
     </div>
 
-    <div class="form-group" id="grupoOrdinario"
-        style="display: none;">
+    <script>
 
-        <label for="ordinarioInput">
-            Calificación Examen Ordinario (0-10):
-        </label>
+        function calcular() {
 
-        <input type="number" id="ordinarioInput"
-            min="0" max="10" step="0.1"
-            placeholder="Ej. 7.0" oninput="calcular()">
-    </div>
+            const p1 = parseFloat(
+                document.getElementById('parcial1').value
+            );
 
-    <div id="resultadoBox" class="result"
-        style="display: none;">
+            const p2 = parseFloat(
+                document.getElementById('parcial2').value
+            );
 
-        <span id="textoResultado"></span>
+            const ordInput = document.getElementById('ordinarioInput');
+            const ordGroup = document.getElementById('grupoOrdinario');
+            const box = document.getElementById('resultadoBox');
+            const texto = document.getElementById('textoResultado');
 
-    </div>
+            // VALIDACIÓN DE LOS PARCIALES
 
-</div>
+            if (
+                isNaN(p1) || isNaN(p2) ||
+                p1 < 0 || p1 > 10 ||
+                p2 < 0 || p2 > 10
+            ) {
+                box.style.display = 'none';
+                ordGroup.style.display = 'none';
+                ordInput.value = '';
+                return;
+            }
 
-<script>
+            // CÁLCULO DE LOS DOS PARCIALES
 
-    function calcular() {
+            const sumaParciales = p1 + p2;
+            const promedioParciales = sumaParciales / 2;
 
-        let p1 = parseFloat(
-            document.getElementById('parcial1').value
-        );
+            const promedioTexto = promedioParciales.toFixed(2);
 
-        let p2 = parseFloat(
-            document.getElementById('parcial2').value
-        );
+            // LEYENDA PERSONALIZADA
 
-        let ordInput = document.getElementById('ordinarioInput');
-        let ordGroup = document.getElementById('grupoOrdinario');
-        let box = document.getElementById('resultadoBox');
-        let texto = document.getElementById('textoResultado');
+            const leyendaBendicion =
+                "<br><br><strong>Dios te quiere</strong>" +
+                "<br><small style='font-size:13px; font-weight:normal;'>" +
+                "(Si eres ateo, la Madre Tierra te ama 🌍)" +
+                "</small>";
 
-        // Validar que los parciales sean números válidos
-        if (
-            isNaN(p1) || isNaN(p2) ||
-            p1 < 0 || p1 > 10 ||
-            p2 < 0 || p2 > 10
-        ) {
-            box.style.display = 'none';
-            ordGroup.style.display = 'none';
-            ordInput.value = '';
-            return;
-        }
+            // CRITERIO 1:
+            // PROMEDIO DE PARCIALES DE 5.9 O MENOS
+            // PASA DIRECTAMENTE A EXTRAORDINARIO
 
-        let sumaParciales = p1 + p2;
-        let promedioParciales = sumaParciales / 2;
+            if (promedioParciales <= 5.9) {
 
-        let promedioTexto = promedioParciales.toFixed(2);
+                ordGroup.style.display = 'none';
+                ordInput.value = '';
 
-        let leyendaBendicion =
-            "<br><br><strong>Dios te quiere</strong>" +
-            "<br><small style='font-size:13px; font-weight:normal;'>" +
-            "(Si eres ateo, la Madre Tierra te ama 🌍)" +
-            "</small>";
+                box.style.display = 'block';
+                box.className = 'result extraordinario';
 
-        // CRITERIO 1:
-        // Promedio de parciales menor a 5.95:
-        // El alumno pasa directamente a extraordinario.
+                texto.innerHTML =
+                    `Suma parciales: ${sumaParciales.toFixed(1)}
+                    <br>Promedio: ${promedioTexto}
+                    <br>❌ Estás en examen extraordinario.`;
 
-        if (promedioParciales < 5.95) {
+                return;
+            }
 
-            ordGroup.style.display = 'none';
-            ordInput.value = '';
+            // CRITERIO 2:
+            // PROMEDIO DE 8 O MÁS
+            // EXENTA EL EXAMEN ORDINARIO
+
+            if (promedioParciales >= 8.0) {
+
+                ordGroup.style.display = 'none';
+                ordInput.value = '';
+
+                box.style.display = 'block';
+                box.className = 'result aprobado';
+
+                texto.innerHTML =
+                    `Suma parciales: ${sumaParciales.toFixed(1)}
+                    <br>Promedio: ${promedioTexto}
+                    <br>🎉 ¡Aprobado! Exentas el ordinario.${leyendaBendicion}`;
+
+                return;
+            }
+
+            // CRITERIO 3:
+            // DEBE PRESENTAR EXAMEN ORDINARIO
+
+            ordGroup.style.display = 'block';
+
+            const ordVal = parseFloat(ordInput.value);
+
+            if (isNaN(ordVal)) {
+
+                box.style.display = 'block';
+                box.className = 'result ordinario';
+
+                texto.innerHTML =
+                    `Suma parciales: ${sumaParciales.toFixed(1)}
+                    <br>Promedio: ${promedioTexto}
+                    <br>⚠️ Presentas examen ordinario. Ingresa tu calificación.`;
+
+                return;
+            }
+
+            // VALIDAR CALIFICACIÓN DEL ORDINARIO
+
+            if (ordVal < 0 || ordVal > 10) {
+
+                box.style.display = 'none';
+                return;
+            }
+
+            // ==========================================
+            // CÁLCULO CORRECTO DEL PROMEDIO FINAL
+            // ==========================================
+
+            // Se suman las TRES evaluaciones
+            const sumaTotal = p1 + p2 + ordVal;
+
+            // Se divide entre TRES
+            const finalPromedio = sumaTotal / 3;
+
+            // REDONDEO INSTITUCIONAL:
+            // 5.95 O MÁS ACREDITA CON CALIFICACIÓN DE 6
+
+            let finalPromedioTexto;
+
+            if (finalPromedio >= 5.95 && finalPromedio < 6) {
+                finalPromedioTexto = "6";
+            } else {
+                finalPromedioTexto = finalPromedio.toFixed(2);
+            }
 
             box.style.display = 'block';
-            box.className = 'result extraordinario';
 
-            texto.innerHTML =
-                `Suma parciales: ${sumaParciales.toFixed(1)}
-                <br>Promedio: ${promedioTexto}
-                <br>❌ Estás en examen extraordinario.`;
+            // ==========================================
+            // RESULTADO FINAL
+            // ==========================================
 
-            return;
-        }
+            if (finalPromedio >= 5.95) {
 
-        // CRITERIO 2:
-        // Promedio de parciales igual o superior a 8:
-        // El alumno exenta el ordinario.
+                box.className = 'result aprobado';
 
-        if (promedioParciales >= 8.0) {
+                texto.innerHTML =
+                    `Suma de las tres evaluaciones: ${sumaTotal.toFixed(1)}
+                    <br>Promedio Final: ${finalPromedioTexto}
+                    <br>🎉 ¡Aprobaste la materia!${leyendaBendicion}`;
 
-            ordGroup.style.display = 'none';
-            ordInput.value = '';
+            } else {
 
-            box.style.display = 'block';
-            box.className = 'result aprobado';
+                box.className = 'result extraordinario';
 
-            texto.innerHTML =
-                `Suma parciales: ${sumaParciales.toFixed(1)}
-                <br>Promedio: ${promedioTexto}
-                <br>🎉 ¡Aprobado! Exentas el ordinario.${leyendaBendicion}`;
+                texto.innerHTML =
+                    `Suma de las tres evaluaciones: ${sumaTotal.toFixed(1)}
+                    <br>Promedio Final: ${finalPromedioTexto}
+                    <br>❌ Estás en examen extraordinario.`;
 
-            return;
-        }
-
-        // CRITERIO 3:
-        // El alumno debe presentar examen ordinario.
-
-        ordGroup.style.display = 'block';
-
-        let ordVal = parseFloat(ordInput.value);
-
-        if (isNaN(ordVal)) {
-
-            box.style.display = 'block';
-            box.className = 'result ordinario';
-
-            texto.innerHTML =
-                `Suma parciales: ${sumaParciales.toFixed(1)}
-                <br>Promedio: ${promedioTexto}
-                <br>⚠️ Presentas examen ordinario. Ingresa tu calificación.`;
-
-            return;
-        }
-
-        // Validar calificación del ordinario
-
-        if (ordVal < 0 || ordVal > 10) {
-
-            box.style.display = 'none';
-            return;
-        }
-
-        // CRITERIO 4:
-        // Promedio final de las TRES evaluaciones.
-        // El alumno acredita con 5.95 o más.
-
-        let sumaTotal = p1 + p2 + ordVal;
-        let finalPromedio = sumaTotal / 3;
-
-        let finalPromedioTexto = finalPromedio.toFixed(2);
-
-        // Redondeo institucional de 5.95 a 6
-
-        if (finalPromedio >= 5.95) {
-
-            finalPromedio = 6;
-            finalPromedioTexto = "6";
-        }
-
-        box.style.display = 'block';
-
-        // Resultado final
-
-        if (finalPromedio >= 6) {
-
-            box.className = 'result aprobado';
-
-            texto.innerHTML =
-                `Suma de las tres evaluaciones: ${sumaTotal.toFixed(1)}
-                <br>Promedio Final: ${finalPromedioTexto}
-                <br>🎉 ¡Aprobaste la materia!${leyendaBendicion}`;
-
-        } else {
-
-            box.className = 'result extraordinario';
-
-            texto.innerHTML =
-                `Suma de las tres evaluaciones: ${sumaTotal.toFixed(1)}
-                <br>Promedio Final: ${finalPromedioTexto}
-                <br>❌ Estás en examen extraordinario.`;
+            }
 
         }
 
-    }
-
-</script>
+    </script>
 
 </body>
 </html>
-
