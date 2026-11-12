@@ -4,13 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Calculadora de Parciales</title>
-    <label> La presente calculadora solo es informativa para corroborar tus calificaciones oficiales verifica tu portal de alumno </label>
+
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background-color: #fff;
             margin: 0;
-            padding: 20px;
+            padding: 75px 20px 20px;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -63,7 +63,7 @@
             border: 1px solid #c3e6cb;
         }
         .ordinario {
-            background-color: #f6d51c
+            background-color: #f6d51c;
             color: #856404;
             border: 1px solid #ffeeba;
         }
@@ -72,10 +72,29 @@
             color: #721c24;
             border: 1px solid #f5c6cb;
         }
+    .mensaje-superior {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        background-color: #000;
+        color: #fff;
+        text-align: center;
+        padding: 12px 15px;
+        font-size: 13px;
+        font-weight: 600;
+        box-sizing: border-box;
+        z-index: 1000;
+        border-bottom: 2px solid #444;
+}
+    
     </style>
 </head>
 <body>
-
+<div class="mensaje-superior">
+    La presente calculadora solo es informativa, para corroborar tus calificaciones oficiales
+    verifica tu portal de alumno de Servicios Escolares.
+</div>
 <div class="card">
     <h2>Calculadora de Parciales</h2>
     
@@ -153,27 +172,32 @@
             box.className = 'result ordinario';
             texto.innerHTML = `Suma parciales: ${sumaParciales.toFixed(1)} <br> Promedio: ${promedioTexto}<br>⚠️ Presentas examen ordinario. Ingresa tu calificación.`;
         } else {
-            // Evaluamos la suma/promedio final con el ordinario
-            let finalPromedio = (promedioParciales + ordVal) / 2;
-            let finalPromedioTexto = finalPromedio.toFixed(2);
+            // Evaluamos el promedio de las tres evaluaciones
+                let sumaTotal = p1 + p2 + ordVal;
+                let finalPromedio = sumaTotal / 3;
+                let finalPromedioTexto = finalPromedio.toFixed(2);
 
-            if (finalPromedioTexto === "5.95" || (finalPromedio >= 5.949 && finalPromedio < 6.0)) {
-                finalPromedio = 6;
-                finalPromedioTexto = "6";
-            }
+            // Redondeamos 5.95 a 6
+                if (finalPromedio >= 5.95) {
+                    finalPromedio = 6;
+                    finalPromedioTexto = "6";
+                }
 
             box.style.display = 'block';
             
             // Si el promedio final o la nota del ordinario resulta <= 5.9, va a extraordinario
-            if (finalPromedio <= 5.9) {
-                box.className = 'result extraordinario';
-                texto.innerHTML = `Suma parciales: ${sumaParciales.toFixed(1)} | Ordinario: ${ordVal.toFixed(1)}<br>Promedio Final: ${finalPromedioTexto}<br>❌ Estás en examen extraordinario.`;
-            } else if (finalPromedio >= 6.0 || ordVal >= 6.0) {
+            box.style.display = 'block';
+
+            if (finalPromedio >= 6) {
                 box.className = 'result aprobado';
-                texto.innerHTML = `Suma parciales: ${sumaParciales.toFixed(1)} | Ordinario: ${ordVal.toFixed(1)}<br>Promedio Final: ${finalPromedioTexto}<br>🎉 ¡Aprobaste el Ordinario!${leyendaBendicion}`;
+                texto.innerHTML = `Suma de las tres evaluaciones: ${sumaTotal.toFixed(1)}
+                <br>Promedio Final: ${finalPromedioTexto}
+                <br>🎉 ¡Aprobaste la materia!${leyendaBendicion}`;
             } else {
                 box.className = 'result extraordinario';
-                texto.innerHTML = `Suma parciales: ${sumaParciales.toFixed(1)} | Ordinario: ${ordVal.toFixed(1)}<br>Promedio Final: ${finalPromedioTexto}<br>❌ Estás en examen extraordinario.`;
+                texto.innerHTML = `Suma de las tres evaluaciones: ${sumaTotal.toFixed(1)}
+                <br>Promedio Final: ${finalPromedioTexto}
+                <br>❌ Estás en examen extraordinario.`;
             }
         }
     }
